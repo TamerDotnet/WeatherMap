@@ -4,6 +4,6 @@ namespace WeatherMap.API.Core
 {
     public interface IOpenWeatherMapHttp
     {
-        Task<WeatherMapResponse?> GetOpenWeatherMap(SearchTerms searchTerms);
+        Task<WeatherMapResult?> GetOpenWeatherMapAsync(SearchTerms searchTerms);
     }
 }
