@@ -1,17 +1,9 @@
 ﻿using FluentAssertions;
-using FluentAssertions.Common;
 using Newtonsoft.Json;
 using NSubstitute;
 using NUnit.Framework;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics.Metrics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using WeatherMap.API.Core;
 using WeatherMap.API.Models;
-using WeatherMap.API.Services;
 using WeatherMap.API.Services.Impl;
 using WeatherMap.Tests.TestData;
 
@@ -34,12 +26,12 @@ namespace WeatherMap.Tests
 
 
             //act
-            var searchResult = weatherQueryService.SearchForWeather(searchTerms);
+            var searchResult = weatherQueryService.SearchForWeatherAsync(searchTerms);
 
             //assert
             Assert.That(searchResult, Is.InstanceOf<FailedWeatherMapResult>());
 
-            var failedWeatherMapResult = (FailedWeatherMapResult)searchResult;
+            var failedWeatherMapResult = searchResult.Result as FailedWeatherMapResult;
             failedWeatherMapResult.Errors.Count().Should().Be(1);
             failedWeatherMapResult.Errors.ToArray()[0].Should().Be(expectedValue);
         }
@@ -54,12 +46,12 @@ namespace WeatherMap.Tests
 
 
             //act
-            var searchResult = weatherQueryService.SearchForWeather(searchTerms);
+            var searchResult = weatherQueryService.SearchForWeatherAsync(searchTerms);
 
             //assert
             Assert.That(searchResult, Is.InstanceOf<FailedWeatherMapResult>());
 
-            var failedWeatherMapResult = (FailedWeatherMapResult)searchResult;
+            var failedWeatherMapResult = searchResult.Result as FailedWeatherMapResult;
             failedWeatherMapResult.Errors.Count().Should().Be(2);
             string.Join(",", failedWeatherMapResult.Errors).Should().Be(expectedValue);
         }
@@ -68,22 +60,22 @@ namespace WeatherMap.Tests
         {
             //arrange
             var searchTerms = new SearchTerms("uk", "London");
-            var expectedWeatherData = JsonConvert.DeserializeObject<WeatherMapResponse>(WeatherMapData.ResponseTestData);
+            var expectedWeatherData = GetSuccessfullWeatherMapResult();
 
             var weatherQueryValidator = Substitute.For<WeatherQueryValidator>();
             var openWeatherMapHttp = Substitute.For<IOpenWeatherMapHttp>();
-            openWeatherMapHttp.GetOpenWeatherMap(searchTerms).Returns(Task.FromResult(expectedWeatherData));
+            openWeatherMapHttp.GetOpenWeatherMapAsync(searchTerms).Returns(expectedWeatherData);
 
             var weatherQueryService = new WeatherQueryService(openWeatherMapHttp, weatherQueryValidator);
 
             //act
-            var searchResult = weatherQueryService.SearchForWeather(searchTerms);
+            var searchResult = weatherQueryService.SearchForWeatherAsync(searchTerms);
 
             //assert
-            Assert.That(searchResult, Is.InstanceOf<SuccessfullWeatherMapResult>());
+            Assert.That(searchResult.Result, Is.InstanceOf<SuccessfullWeatherMapResult>());
 
-            var result = (SuccessfullWeatherMapResult)searchResult;
-            result.WeatherMapResponse.Weather.Should().BeEquivalentTo(expectedWeatherData.Weather);
+            var result = searchResult.Result as SuccessfullWeatherMapResult;
+            result.WeatherMapResponse.Weather.Should().BeEquivalentTo(expectedWeatherData.WeatherMapResponse.Weather);
         }
 
 
@@ -93,8 +85,12 @@ namespace WeatherMap.Tests
             var openWeatherMapHttp = Substitute.For<IOpenWeatherMapHttp>();
 
             return new WeatherQueryService(openWeatherMapHttp, weatherQueryValidator);
+        }
 
-
+        private SuccessfullWeatherMapResult GetSuccessfullWeatherMapResult()
+        {
+            var weatherMapResponse = JsonConvert.DeserializeObject<WeatherMapResponse>(WeatherMapData.ResponseTestData);
+            return new SuccessfullWeatherMapResult(weatherMapResponse); 
         }
     }
 }

@@ -19,7 +19,7 @@ namespace WeatherMap.API.Models
     {
         public FailedWeatherMapResult(string[] errors)
         {
-            Errors = errors ?? throw new InvalidOperationException("Errors not provided");
+            Errors = errors ?? throw new ArgumentException("Errors not provided");
         }
 
         public string[] Errors { get; set; }
