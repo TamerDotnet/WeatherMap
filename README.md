@@ -3,7 +3,10 @@ Solution has been developed using .NET 6.0. Some nuget packages has been used to
 
 ApiKeyRequired Attribute has been added in order to make sure API does not get called if the Key is not provided.
 
-#Testing
+Following Animated gif showing testing using Postman
+https://1drv.ms/u/s!AkcvFsjnZov2lH3Yf49COvAHe8Gc?e=HP4G5W
+
+# Testing
 Integration Tests used the following packages which are
 NUnit
 NSubstitute
