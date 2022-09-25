@@ -4,6 +4,6 @@ namespace WeatherMap.API.Services
 {
     public interface IWeatherQueryService
     {
-        Task<WeatherMapResult> SearchForWeatherAsync(SearchTerms searchTerms);
+        Task<WeatherMapResult?> SearchForWeatherAsync(SearchTerms searchTerms);
     }
 }
