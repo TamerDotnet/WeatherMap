@@ -21,6 +21,11 @@ namespace WeatherMap.API
             // Add services to the container.
 
             services.AddControllers();
+
+            services.AddCors(options =>
+            {
+                options.AddPolicy("Open", builder => builder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
+            });
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             services.AddEndpointsApiExplorer();
             services.AddSwaggerGen();
@@ -46,7 +51,7 @@ namespace WeatherMap.API
                     {
                         Endpoint = "GET:/api/WeatherForecast/*",
                         Period = "1h",
-                        Limit = 1,
+                        Limit = 5,
                     }
                 };
             });
@@ -60,10 +65,10 @@ namespace WeatherMap.API
                 app.UseSwaggerUI();
             }
 
-
+            app.UseCors("Open");
             app.UseAuthorization();
             app.UseClientRateLimiting();
-
+           
             app.MapControllers();
 
             app.Run();

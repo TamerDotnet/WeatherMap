@@ -49,7 +49,7 @@ namespace WeatherMap.Tests
             //assert
              response.StatusCode.Should().Be(HttpStatusCode.Unauthorized); 
         }
-        [Explicit]
+        [Test]
         public void WeatherForecastController_ShouldBe_Protected_With_API_Key_Required()
         {
             // arrange

@@ -15,7 +15,7 @@ namespace WeatherMap.API.Core
             _httpClient.BaseAddress = new Uri(baseUrl);
         }
 
-        public async Task<WeatherMapResult?> GetOpenWeatherMapAsync(SearchTerms searchTerms)
+        public async Task<WeatherMapResult> GetOpenWeatherMapAsync(SearchTerms searchTerms)
         {
             var requestUri = $"/data/2.5/weather?q={searchTerms.Country},{searchTerms.City}&appid={apiKey}";
             var response = await _httpClient.GetAsync(requestUri);
