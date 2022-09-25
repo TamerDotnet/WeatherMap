@@ -4,6 +4,7 @@ using NSubstitute;
 using NUnit.Framework;
 using WeatherMap.API.Core;
 using WeatherMap.API.Models;
+using WeatherMap.API.Services;
 using WeatherMap.API.Services.Impl;
 using WeatherMap.Tests.TestData;
 
@@ -18,7 +19,7 @@ namespace WeatherMap.Tests
         [TestCase("", "mel", "Country is missing")]
         [TestCase("  ", "mel", "Country is missing")]
         [TestCase(null, "mel", "Country is missing")]
-        public void Handle_SearchForWeather_Missing_OneDataEntry(string country, string city, string expectedValue)
+        public async Task Handle_SearchForWeather_Missing_OneDataEntry(string country, string city, string expectedValue)
         {
             //arrange
             var searchTerms = new SearchTerms(country, city);
@@ -26,19 +27,19 @@ namespace WeatherMap.Tests
 
 
             //act
-            var searchResult = weatherQueryService.SearchForWeatherAsync(searchTerms);
+            var searchResult = await weatherQueryService.SearchForWeatherAsync(searchTerms);
 
             //assert
             Assert.That(searchResult, Is.InstanceOf<FailedWeatherMapResult>());
 
-            var failedWeatherMapResult = searchResult.Result as FailedWeatherMapResult;
+            var failedWeatherMapResult = searchResult as FailedWeatherMapResult;
             failedWeatherMapResult.Errors.Count().Should().Be(1);
             failedWeatherMapResult.Errors.ToArray()[0].Should().Be(expectedValue);
         }
 
         [TestCase("   ", "", "Country is missing,City is missing")]
         [TestCase("", null, "Country is missing,City is missing")]
-        public void Handle_SearchForWeather_Missing_AllDataEntry(string country, string city, string expectedValue)
+        public async Task Handle_SearchForWeather_Missing_AllDataEntry(string country, string city, string expectedValue)
         {
             //arrange
             var searchTerms = new SearchTerms(country, city);
@@ -46,35 +47,35 @@ namespace WeatherMap.Tests
 
 
             //act
-            var searchResult = weatherQueryService.SearchForWeatherAsync(searchTerms);
+            var searchResult = await weatherQueryService.SearchForWeatherAsync(searchTerms);
 
             //assert
             Assert.That(searchResult, Is.InstanceOf<FailedWeatherMapResult>());
 
-            var failedWeatherMapResult = searchResult.Result as FailedWeatherMapResult;
+            var failedWeatherMapResult = searchResult as FailedWeatherMapResult;
             failedWeatherMapResult.Errors.Count().Should().Be(2);
             string.Join(",", failedWeatherMapResult.Errors).Should().Be(expectedValue);
         }
         [Test]
-        public void Handle_SearchForWeather_ReturnExpectedResult()
+        public async Task Handle_SearchForWeather_ReturnExpectedResult()
         {
             //arrange
             var searchTerms = new SearchTerms("uk", "London");
             var expectedWeatherData = GetSuccessfullWeatherMapResult();
 
-            var weatherQueryValidator = Substitute.For<WeatherQueryValidator>();
+            var weatherQueryValidator = Substitute.For<IWeatherQueryValidator>();
             var openWeatherMapHttp = Substitute.For<IOpenWeatherMapHttp>();
             openWeatherMapHttp.GetOpenWeatherMapAsync(searchTerms).Returns(expectedWeatherData);
 
             var weatherQueryService = new WeatherQueryService(openWeatherMapHttp, weatherQueryValidator);
 
             //act
-            var searchResult = weatherQueryService.SearchForWeatherAsync(searchTerms);
+            var searchResult = await weatherQueryService.SearchForWeatherAsync(searchTerms);
 
             //assert
-            Assert.That(searchResult.Result, Is.InstanceOf<SuccessfullWeatherMapResult>());
+            Assert.That(searchResult, Is.InstanceOf<SuccessfullWeatherMapResult>());
 
-            var result = searchResult.Result as SuccessfullWeatherMapResult;
+            var result = searchResult as SuccessfullWeatherMapResult;
             result.WeatherMapResponse.Weather.Should().BeEquivalentTo(expectedWeatherData.WeatherMapResponse.Weather);
         }
 

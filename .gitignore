@@ -39,8 +39,11 @@ ehthumbs.db
 Thumbs.db
 bin
 obj
+lib
+_NCrunch_WeatherMap
 .vs
 *.user
+*.cache
 *.ncrunchproject
 *.ncrunchsolution
 *.ncrunchsolution.user
