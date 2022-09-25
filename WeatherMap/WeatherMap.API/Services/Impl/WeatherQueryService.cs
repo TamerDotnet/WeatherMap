@@ -8,25 +8,23 @@ namespace WeatherMap.API.Services.Impl
         private readonly IOpenWeatherMapHttp _openWeatherMapHttp;
         private readonly IWeatherQueryValidator _weatherQueryValidator;
 
-        public WeatherQueryService(IOpenWeatherMapHttp openWeatherMapHttp, 
-                IWeatherQueryValidator weatherQueryValidator) 
+        public WeatherQueryService(IOpenWeatherMapHttp openWeatherMapHttp,
+                IWeatherQueryValidator weatherQueryValidator)
         {
             _openWeatherMapHttp = openWeatherMapHttp;
             _weatherQueryValidator = weatherQueryValidator;
         }
 
-        
 
-        public async Task<WeatherMapResult> SearchForWeatherAsync(SearchTerms searchTerms)
+
+        public async Task<WeatherMapResult?> SearchForWeatherAsync(SearchTerms searchTerms)
         {
             var validationErrors = _weatherQueryValidator.ValidateSearchTerms(searchTerms);
             if (validationErrors.Any())
-                 return   new FailedWeatherMapResult(validationErrors.ToArray());
+                return new FailedWeatherMapResult(validationErrors.ToArray());
 
             var weatherMapResult = await _openWeatherMapHttp.GetOpenWeatherMapAsync(searchTerms);
-
             return weatherMapResult;
-
         }
     }
 }

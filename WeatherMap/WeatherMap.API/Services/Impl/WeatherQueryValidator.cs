@@ -6,13 +6,11 @@ namespace WeatherMap.API.Services.Impl
     { 
         public IEnumerable<string> ValidateSearchTerms(SearchTerms searchTerms)
         {
-            if (string.IsNullOrEmpty(searchTerms.Country) ||
-                string.IsNullOrWhiteSpace(searchTerms.Country))
+            if (string.IsNullOrWhiteSpace(searchTerms.Country))
                 yield return "Country is missing";
 
 
-            if (string.IsNullOrEmpty(searchTerms.City)||
-                 string.IsNullOrWhiteSpace(searchTerms.City))
+            if (string.IsNullOrWhiteSpace(searchTerms.City))
                 yield return "City is missing";
         }
     }

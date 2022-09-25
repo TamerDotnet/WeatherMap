@@ -1,33 +1,29 @@
 using Microsoft.AspNetCore.Mvc;
+using WeatherMap.API.Attributes;
+using WeatherMap.API.Models;
+using WeatherMap.API.Services;
 
 namespace WeatherMap.API.Controllers
 {
+
     [ApiController]
-    [Route("[controller]")]
+    [ApiKeyRequired]
+    [Route("api/[controller]")]
     public class WeatherForecastController : ControllerBase
     {
-        private static readonly string[] Summaries = new[]
-        {
-        "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-    };
+        private readonly IWeatherQueryService _weatherQueryService;
 
-        private readonly ILogger<WeatherForecastController> _logger;
-
-        public WeatherForecastController(ILogger<WeatherForecastController> logger)
+        public WeatherForecastController(IWeatherQueryService weatherQueryService)
         {
-            _logger = logger;
+            _weatherQueryService = weatherQueryService;
         }
 
-        [HttpGet(Name = "GetWeatherForecast")]
-        public IEnumerable<WeatherForecast> Get()
+        [HttpGet("weather/{country}/{city}", Name = "GetWeatherByCountryCity")]
+        public async Task<WeatherMapResult?> Get(string country, string city)
         {
-            return Enumerable.Range(1, 5).Select(index => new WeatherForecast
-            {
-                Date = DateTime.Now.AddDays(index),
-                TemperatureC = Random.Shared.Next(-20, 55),
-                Summary = Summaries[Random.Shared.Next(Summaries.Length)]
-            })
-            .ToArray();
+            var searchTerms = new SearchTerms(country, city);
+            var result = await _weatherQueryService.SearchForWeatherAsync(searchTerms);
+            return result;
         }
     }
 }
